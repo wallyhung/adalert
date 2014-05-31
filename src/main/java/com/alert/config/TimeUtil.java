@@ -126,6 +126,7 @@ public class TimeUtil {
     public static String getHour(Date date) {
         SimpleDateFormat format = new SimpleDateFormat("HH:00:00");
         String str = format.format(date);
+        if(str.equals("00:00:00")) str = "24:00:00";
         return str;
     }
     
