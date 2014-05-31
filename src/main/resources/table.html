@@ -1,28 +1,44 @@
-<!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; utf-8" charset="utf-8">
 <title>Insert title here</title>
+<style type="text/css">
+table.gridtable {
+	font-family: verdana,arial,sans-serif;
+	font-size:11px;
+	color:#333333;
+	border-width: 1px;
+	border-color: #666666;
+	border-collapse: collapse;
+}
+table.gridtable th {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #dedede;
+}
+table.gridtable td {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #ffffff;
+	text-align: center;
+}
+</style>
 </head>
 <body>
- <table border="1">
-    <tr align="left" style="color: blue;">
-        <td width="80" style="text-align: center;">wqew</td>
-        <td width="80" style="text-align: center;">wqew</td>
-        <td width="80" style="text-align: center;">wqew</td>
-        <td width="80" style="text-align: center;">wqew</td>
-        <td width="80" style="text-align: center;">wqew</td>
-        <td width="80" style="text-align: center;">wqew</td>
-    </tr>
-    <tr style="color:red;">
-        <td style="text-align: center;">wqew</td>
-        <td style="text-align: center;">wqew</td>
-        <td style="text-align: center;">wqew</td>
-        <td style="text-align: center;">wqew</td>
-        <td style="text-align: center;">wqew</td>
-        <td style="text-align: center;">wqew</td>
-    </tr>
- </table>
 
+<!-- Table goes in the document BODY -->
+<table class="gridtable">
+<tr><th rowspan="2">请求数</th><th rowspan="2">推送数</th><th rowspan="2">展示数</th><th colspan="2">点击数</th><th colspan="2">下载数</th><th colspan="2">安装数</th><th rowspan="2">新增用户</th><th rowspan="2">留存用户</th></tr>
+<tr><th>CPA</th><th>CPC</th><th>墙下载</th><th>非墙下载</th><th>墙安装</th><th>非墙安装</th></tr>
+<tr><td>Text 1A</td><td>Text 1B</td><td>Text 1C</td><td>Text 1A</td><td>Text 1B</td><td>Text 1C</td><td>Text 1C</td><td>Text 1A</td><td>Text 1B</td><td>Text 1C</td><td>Text 1C</td>
+</tr>
+<tr>
+	<td>Text 2A</td><td>Text 2B</td><td>Text 2C</td><td>Text 1A</td><td>Text 1B</td><td>Text 1C</td><td>Text 1C</td><td>Text 1A</td><td>Text 1B</td><td>Text 1C</td><td>Text 1C</td>
+</tr>
+</table>
 </body>
 </html>

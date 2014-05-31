@@ -112,6 +112,30 @@ public class TimeUtil {
         String str = format.format(calendar.getTime());
         return str;
     }
+    
+    public static String getDayLastHourStr(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(date.getTime());
+        calendar.add(Calendar.HOUR_OF_DAY, -1);
+        
+        SimpleDateFormat format = new SimpleDateFormat("HH:00:00");
+        String str = format.format(calendar.getTime());
+        return str;
+    }
+    
+    public static String getHour(Date date) {
+        SimpleDateFormat format = new SimpleDateFormat("HH:00:00");
+        String str = format.format(date);
+        return str;
+    }
+    
+    public static String getHourStr(Date date) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:00:00");
+        String str = format.format(date);
+        return str;
+    }
+    
+    
 
     /**
      * 获取上一个小时开始时间的时间戳
@@ -143,13 +167,6 @@ public class TimeUtil {
         }
         return date;
     }
-    
-    public static String getDayHourDate(Date date) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH");
-        String str = format.format(date);
-        return str+":00:00";
-    }
-
 
     /**
      * 获取下一个小时开始时间的日期时间
@@ -341,5 +358,8 @@ public class TimeUtil {
         Date date = StrToDate("2014-05-29 00:00:00");
         System.out.println(getDayStart(date).getTime());
         System.out.println(getDayEnd(date).getTime());
+        
+        System.out.println(getHour(new Date()));
+        System.out.println(getHourStr(new Date()));
     }
 }

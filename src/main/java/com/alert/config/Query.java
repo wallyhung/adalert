@@ -65,14 +65,19 @@ public class Query {
 	    	StringBuilder sb = new StringBuilder();
 	    	StringBuilder hql = new StringBuilder();
 	    	
-	    	sb.append(hour).append("小时统计结果：");
+	    	sb.append("<style type='text/css'>");
+	    	sb.append("table.gridtable {font-family: verdana,arial,sans-serif;	font-size:11px;	color:#333333;	border-width: 1px;	border-color: #666666;	border-collapse: collapse;}");
+	    	sb.append("table.gridtable th {border-width: 1px;	padding: 8px;	border-style: solid; border-color: #666666;	background-color: #dedede;}");
+	    	sb.append("table.gridtable td {border-width: 1px;	padding: 8px;	border-style: solid;	border-color: #666666;	background-color: #ffffff;text-align: center;}");
+	    	sb.append("</style>");
+	    	
+	    	sb.append(TimeUtil.getDayLastHourStr(new Date())).append("-").append(TimeUtil.getHour(new Date())).append("小时统计结果：");
 	    	hql.append("SELECT COUNT(*) FROM ad_hour_report_new t WHERE t.`hour` = '").append(hour).append("'");
 	    	Integer[] res = executeHql(hql.toString(), 1);
 	    	if(res[0] > 0) sb.append(true);
 	    	else sb.append(false);
 	    	sb.append("。<span style='color:red;'>注意：值为-1表明该小时两个维度统计的结果不一致</span>。");
 	    	sb.append("\n");
-	    	sb.append("<table border='1'>");
 	    	
 	    	hql = new StringBuilder();
 	    	hql.append("SELECT SUM(t.`request`) AS request,SUM(t.`push`) AS push,SUM(t.`view`) AS 'view',SUM(t.`cpc`+ t.`c_wall`) AS click,");
@@ -99,23 +104,24 @@ public class Query {
 	    	res[3] = res[3].intValue() == adres[3].intValue() ? res[3] : -1;
 	    	res[6] = res[6].intValue() == adres[6].intValue() ? res[6] : -1;
 	    	res[9] = res[9].intValue() == adres[9].intValue() ? res[9] : -1;
-	    	sb.append("<tr align='left' style='color: blue;'>");
-	    	sb.append("<td width='80' style='text-align: center;'>请求数</td><td width='80' style='text-align: center;'>推送数</td><td width='80' style='text-align: center;'>展示数</td><td width='80' style='text-align: center;'>点击数</td><td width='80' style='text-align: center;'>下载数</td><td width='80' style='text-align: center;'>安装数</td><td width='80' style='text-align: center;'>新增用户</td><td width='80' style='text-align: center;'>留存用户</td></tr>");
-	    	sb.append("<tr><td width='80' style='text-align: center;'>");
-	    	sb.append(res[0]).append("</td><td width='80' style='text-align: center;'>");
-	    	sb.append(res[1]).append("</td><td width='80' style='text-align: center;'>");
-	    	sb.append(res[2]).append("</td><td width='80' style='text-align: center;'>");
-	    	sb.append(res[3]).append("</td><td width='80' style='text-align: center;'>");
-	    	sb.append(res[6]).append("</td><td width='80' style='text-align: center;'>");
-	    	sb.append(res[9]).append("</td><td width='80' style='text-align: center;'>");
-	    	sb.append(res[12]).append("</td><td width='80' style='text-align: center;'>");
+	    	sb.append("<table class='gridtable'>");
+	    	sb.append("<tr><th rowspan='2'>请求数</th><th rowspan='2'>推送数</th><th rowspan='2'>展示数</th><th colspan='2'>点击数</th><th colspan='2'>下载数</th><th colspan='2'>安装数</th><th rowspan='2'>新增用户</th><th rowspan='2'>留存用户</th></tr>");
+	    	sb.append("<tr><th>CPA</th><th>CPC</th><th>墙下载</th><th>非墙下载</th><th>墙安装</th><th>非墙安装</th></tr>");
+	    	sb.append("<tr><td>");
+	    	sb.append(res[0]).append("</td><td>");
+	    	sb.append(res[1]).append("</td><td>");
+	    	sb.append(res[2]).append("</td><td>");
+	    	sb.append(res[4]).append("</td><td>");
+	    	sb.append(res[5]).append("</td><td>");
+	    	sb.append(res[7]).append("</td><td>");
+	    	sb.append(res[8]).append("</td><td>");
+	    	sb.append(res[10]).append("</td><td>");
+	    	sb.append(res[11]).append("</td><td>");
+	    	sb.append(res[12]).append("</td><td>");
 	    	sb.append(res[13]);
 	    	sb.append("</td></tr></table>");
-	    	sb.append("其中，cpa点击：").append(res[4]).append("，cpc点击：").append(res[5]);
-	    	sb.append("，墙下载：").append(res[7]).append("，非墙下载：").append(res[8]);
-	    	sb.append("，墙安装：").append(res[10]).append("，非墙安装：").append(res[11]).append("。\n");
             sb.append("<br><br>");
-            sb.append("截止到").append(TimeUtil.getDayHourDate(new Date())).append("，总统计数据：\n");
+            sb.append("截止到").append(TimeUtil.getHour(new Date())).append("，总统计结果：\n");
             
             
             hql = new StringBuilder();
@@ -129,20 +135,20 @@ public class Query {
 	    	
 	    	res = executeHql(hql.toString(), 12);
             sb.append("\n");
-            sb.append("<table border='1'>");
-	    	sb.append("<tr align='left' style='color: blue;'>");
-	    	sb.append("<td width='80' style='text-align: center;'>请求数</td><td width='80' style='text-align: center;'>推送数</td><td width='80' style='text-align: center;'>展示数</td><td width='80' style='text-align: center;'>点击数</td><td width='80' style='text-align: center;'>下载数</td><td width='80' style='text-align: center;'>安装数</td></tr>");
-	    	sb.append("<tr><td width='80' style='text-align: center;'>");
-	    	sb.append(res[0]).append("</td><td width='80' style='text-align: center;'>");
-	    	sb.append(res[1]).append("</td><td width='80' style='text-align: center;'>");
-	    	sb.append(res[2]).append("</td><td width='80' style='text-align: center;'>");
-	    	sb.append(res[3]).append("</td><td width='80' style='text-align: center;'>");
-	    	sb.append(res[6]).append("</td><td width='80' style='text-align: center;'>");
-	    	sb.append(res[9]);
+            sb.append("<table class='gridtable'>");
+	    	sb.append("<tr><th rowspan='2'>请求数</th><th rowspan='2'>推送数</th><th rowspan='2'>展示数</th><th colspan='2'>点击数</th><th colspan='2'>下载数</th><th colspan='2'>安装数</th>");
+	    	sb.append("<tr><th>CPA</th><th>CPC</th><th>墙下载</th><th>非墙下载</th><th>墙安装</th><th>非墙安装</th></tr>");
+	    	sb.append("<tr><td>");
+	    	sb.append(res[0]).append("</td><td>");
+	    	sb.append(res[1]).append("</td><td>");
+	    	sb.append(res[2]).append("</td><td>");
+	    	sb.append(res[4]).append("</td><td>");
+	    	sb.append(res[5]).append("</td><td>");
+	    	sb.append(res[7]).append("</td><td>");
+	    	sb.append(res[8]).append("</td><td>");
+	    	sb.append(res[10]).append("</td><td>");
+	    	sb.append(res[11]);
 	    	sb.append("</td></tr></table>");
-	    	sb.append("其中，cpa点击：").append(res[4]).append("，cpc点击：").append(res[5]);
-	    	sb.append("，墙下载：").append(res[7]).append("，非墙下载：").append(res[8]);
-	    	sb.append("，墙安装：").append(res[10]).append("，非墙安装：").append(res[11]).append("。\n");
             sb.append("<br><br>");
             
             String day = TimeUtil.getDay(TimeUtil.getLastDay(new Date()));
@@ -151,17 +157,18 @@ public class Query {
 	    	hql.append("FROM day_sum t WHERE t.`day` = '");
 	    	hql.append(day);
 	    	hql.append("'");
+	    	
 	    	res = executeHql(hql.toString(), 7);
-	    	sb.append("昨日的统计结果：");
-	    	sb.append("<table border='1'>");
-	    	sb.append("<tr align='left' style='color: blue;'>");
-	    	sb.append("<td width='80' style='text-align: center;'>推送数</td><td width='80' style='text-align: center;'>展示数</td><td width='80' style='text-align: center;'>点击数</td><td width='80' style='text-align: center;'>下载数</td><td width='80' style='text-align: center;'>安装数</td><td width='80' style='text-align: center;'>终端数</td></tr>");
-	    	sb.append("<tr><td width='80' style='text-align: center;'>");
-	    	sb.append(res[1]).append("</td><td width='80' style='text-align: center;'>");
-	    	sb.append(res[2]).append("</td><td width='80' style='text-align: center;'>");
-	    	sb.append(res[3]).append("</td><td width='80' style='text-align: center;'>");
-	    	sb.append(res[4]).append("</td><td width='80' style='text-align: center;'>");
-	    	sb.append(res[5]).append("</td><td width='80' style='text-align: center;'>");
+	    	sb.append("昨日统计结果：");
+	    	sb.append("\n");
+            sb.append("<table class='gridtable'>");
+	    	sb.append("<tr><th>推送数</th><th>展示数</th><th>点击数</th><th>下载数</th><th>安装数</th><th>终端数</th>");
+	    	sb.append("<tr><td>");
+	    	sb.append(res[1]).append("</td><td>");
+	    	sb.append(res[2]).append("</td><td>");
+	    	sb.append(res[3]).append("</td><td>");
+	    	sb.append(res[4]).append("</td><td>");
+	    	sb.append(res[5]).append("</td><td>");
 	    	sb.append(res[6]);
 	    	sb.append("</td></tr></table>");
             sb.append("<br><br>");
@@ -171,22 +178,22 @@ public class Query {
  	    	hql.append("WHERE t.`hour` = '");
  	    	hql.append(hour);
  	    	hql.append("' AND t.`re_view` <> '0' GROUP BY t.`adid` ORDER BY t.`adid`");
+ 	    	System.out.println(hql.toString());
  	    	List<Integer[]> list = executeMultHql(hql.toString(), 9);
 	    	if(list.size() > 0)
 	    	{
-	    		sb.append(hour).append("小时补推的广告效果：\n");
-	 	    	sb.append("<table border='1'>");
-		    	sb.append("<tr align='left' style='color: blue;'>");
-		    	sb.append("<td width='80' style='text-align: center;'>广告ID</td><td width='80' style='text-align: center;'>推送数</td><td width='80' style='text-align: center;'>推送安装</td><td width='80' style='text-align: center;'>补推展示</td><td width='80' style='text-align: center;'>补推点击</td><td width='80' style='text-align: center;'>推送下载</td><td width='80' style='text-align: center;'>推送安装</td><td width='80' style='text-align: center;'>终端数</td></tr>");
+	    		sb.append(TimeUtil.getDayLastHourStr(new Date())).append("-").append(TimeUtil.getHour(new Date())).append("小时补推的广告效果：\n");
+	            sb.append("<table class='gridtable'>");
+		    	sb.append("<tr><th>广告ID</th><th>推送数</th><th>推送安装</th><th>补推展示</th><th>补推点击</th><th>补推下载</th><th>补推安装</th><th>终端数</th>");
 		    	for (Integer[] integers : list) {
-		    		sb.append("<tr><td width='80' style='text-align: center;'>");
-			    	sb.append(integers[0]).append("</td><td width='80' style='text-align: center;'>");
-			    	sb.append(integers[1]).append("</td><td width='80' style='text-align: center;'>");
-			    	sb.append(integers[3]).append("</td><td width='80' style='text-align: center;'>");
-			    	sb.append(integers[4]).append("</td><td width='80' style='text-align: center;'>");
-			    	sb.append(integers[5]).append("</td><td width='80' style='text-align: center;'>");
-			    	sb.append(integers[6]).append("</td><td width='80' style='text-align: center;'>");
-			    	sb.append(integers[7]).append("</td><td width='80' style='text-align: center;'>");
+		    		sb.append("<tr><td>");
+			    	sb.append(integers[0]).append("</td><td>");
+			    	sb.append(integers[1]).append("</td><td>");
+			    	sb.append(integers[3]).append("</td><td>");
+			    	sb.append(integers[4]).append("</td><td>");
+			    	sb.append(integers[5]).append("</td><td>");
+			    	sb.append(integers[6]).append("</td><td>");
+			    	sb.append(integers[7]).append("</td><td>");
 			    	sb.append(integers[8]);
 			    	sb.append("</td></tr>");
 				}
@@ -207,6 +214,7 @@ public class Query {
 	    }
 	    
 	    public static void main(String[] args) {
+//	    	getMailContent();
 			sendMail();
 		}
 
