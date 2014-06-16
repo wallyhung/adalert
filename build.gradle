@@ -1,0 +1,56 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'eclipse-wtp'
+apply plugin: 'war'
+apply plugin: 'application'
+
+sourceCompatibility = 1.6
+mainClassName = "com.alert.config.Application"
+jar {
+    baseName = 'adalert'
+    version =  '0.1.0'
+    manifest.attributes provider: 'www.dafada.com'
+}
+
+compileJava.options.encoding = 'UTF-8'
+tasks.withType(Compile) {
+    options.encoding = "UTF-8"
+}
+
+repositories {
+    mavenCentral()
+}
+
+applicationDistribution.from("wrapper/conf") {
+    into "conf"
+}
+applicationDistribution.from("wrapper/lib") {
+    exclude "wrapper.jar"
+    into "lib"
+}
+applicationDistribution.from("wrapper/bin") {
+    into "bin"
+}
+
+dependencies {
+    compile 'mysql:mysql-connector-java:5.1.30'
+    compile 'org.slf4j:slf4j-api:1.7.7'
+    compile 'ch.qos.logback:logback-core:1.1.2'
+    compile 'ch.qos.logback:logback-classic:1.1.2'
+    compile 'javax.mail:mail:1.4.7'
+    compile 'quartz:quartz:1.5.2'
+    compile files("wrapper/lib/wrapper.jar")
+    testCompile('junit:junit:4.11')
+}
+
+test {
+    systemProperties 'property': 'value'
+}
+
+uploadArchives {
+    repositories {
+       flatDir {
+           dirs 'repos'
+       }
+    }
+}
