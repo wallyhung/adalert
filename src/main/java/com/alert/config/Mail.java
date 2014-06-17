@@ -21,7 +21,7 @@ public class Mail {
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.host", "jukuad.com");
+        props.put("mail.smtp.host", "114.255.157.20");
         props.put("mail.smtp.port", "25");
         props.put("mail.transport.protocol", "smtp");
 
@@ -37,14 +37,18 @@ public class Mail {
         session.setDebug(true);
         Message msg = new MimeMessage(session);
         msg.setFrom(new InternetAddress("jukuadsupport@jukuad.com", "飓酷广告统计平台"));
-        Address[] as = new InternetAddress[adds.length];
+        Address[] as = null;
         if(adds != null && adds.length > 0)
         {
+        	as = new InternetAddress[adds.length];
             for (int i = 0; i < adds.length ; i++) {
                 as[i] = new InternetAddress(adds[i],"监控者");
             }
         }
-        else as[0] = new InternetAddress("363306725@qq.com","开发者");
+        else{
+        	as = new InternetAddress[1];
+        	as[0] = new InternetAddress("363306725@qq.com","开发者");
+        }
         msg.addRecipients(Message.RecipientType.TO,as);
         msg.setSubject(subject);
         msg.setText(msgBody);

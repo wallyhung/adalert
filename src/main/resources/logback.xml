@@ -25,7 +25,7 @@
 
     <!-- 整体默认为WARN级别  -->
     <root>
-        <level value="ERROR"/>
+        <level value="info"/>
         <appender-ref ref="logfile"/>
     </root>
 </configuration>

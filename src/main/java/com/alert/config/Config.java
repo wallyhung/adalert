@@ -1,5 +1,6 @@
 package com.alert.config;
 
+import com.mysql.jdbc.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +80,9 @@ public class Config {
     public String[] getMailAdds() {
         try {
             properties.load(Config.class.getResourceAsStream("/application.properties"));
-            return properties.getProperty("mail.adds").split(",");
+            String adds = properties.getProperty("mail.adds");
+            if(StringUtils.isNullOrEmpty(adds)) return null;
+            else return adds.split(",");
         } catch (IOException e) {
             logger.error("加载邮件接受人失败...");
         }
