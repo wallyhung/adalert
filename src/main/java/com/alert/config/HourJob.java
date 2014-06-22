@@ -14,8 +14,7 @@ public class HourJob implements Job{
 	public void execute(JobExecutionContext context) throws JobExecutionException 
 	{
 		logger.info("hour report reseult validating ....");
-		DataService dataService = new DataService();
-		dataService.sendMail();
+		Query.sendMail();
 	}
 
 }

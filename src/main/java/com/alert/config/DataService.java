@@ -71,7 +71,7 @@ public class DataService {
         }
         return res;
     }
-
+    
     public Integer[] validate() {
         Integer[] res = new Integer[6];
         String day = TimeUtil.getDayLastHour(new Date()).substring(0,10);
@@ -114,10 +114,4 @@ public class DataService {
             logger.error("发送邮件失败...");
         }
     }
-
-    public static void main(String[] args) {
-        DataService dataService = new DataService();
-        dataService.sendMail();
-    }
-
 }

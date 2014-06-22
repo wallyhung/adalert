@@ -143,6 +143,12 @@ public class TimeUtil {
         }
         return date;
     }
+    
+    public static String getDayHourDate(Date date) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH");
+        String str = format.format(date);
+        return str+":00:00";
+    }
 
 
     /**
