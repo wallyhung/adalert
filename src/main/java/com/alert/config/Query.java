@@ -178,7 +178,6 @@ public class Query {
  	    	hql.append("WHERE t.`hour` = '");
  	    	hql.append(hour);
  	    	hql.append("' AND t.`re_view` <> '0' GROUP BY t.`adid` ORDER BY t.`adid`");
- 	    	System.out.println(hql.toString());
  	    	List<Integer[]> list = executeMultHql(hql.toString(), 9);
 	    	if(list.size() > 0)
 	    	{
