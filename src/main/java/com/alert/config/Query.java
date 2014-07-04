@@ -66,19 +66,21 @@ public class Query {
 	    	StringBuilder hql = new StringBuilder();
 	    	
 	    	sb.append("<style type='text/css'>");
+	    	sb.append(".wr{font-family:verdana,arial,sans-serif;font-size:11px;color:#333333;font-weight: bold;}");
 	    	sb.append("table.gridtable {font-family: verdana,arial,sans-serif;	font-size:11px;	color:#333333;	border-width: 1px;	border-color: #666666;	border-collapse: collapse;}");
 	    	sb.append("table.gridtable th {border-width: 1px;	padding: 8px;	border-style: solid; border-color: #666666;	background-color: #dedede;}");
 	    	sb.append("table.gridtable td {border-width: 1px;	padding: 8px;	border-style: solid;	border-color: #666666;	background-color: #ffffff;text-align: center;}");
 	    	sb.append("</style>");
 	    	
+	    	//判断该小时是否进行了小时统计
 	    	sb.append(TimeUtil.getDayLastHourStr(new Date())).append("-").append(TimeUtil.getHour(new Date())).append("小时统计结果：");
 	    	hql.append("SELECT COUNT(*) FROM ad_hour_report_new t WHERE t.`hour` = '").append(hour).append("'");
 	    	Integer[] res = executeHql(hql.toString(), 1);
 	    	if(res[0] > 0) sb.append(true);
 	    	else sb.append(false);
-	    	sb.append("。<span style='color:red;'>注意：值为-1表明该小时两个维度统计的结果不一致</span>。");
-	    	sb.append("\n");
+	    	sb.append("。\n");
 	    	
+	    	//获取该小时的应用统计概况
 	    	hql = new StringBuilder();
 	    	hql.append("SELECT SUM(t.`request`) AS request,SUM(t.`push`) AS push,SUM(t.`view`) AS 'view',SUM(t.`cpc`+ t.`c_wall`) AS click,");
 	    	hql.append("SUM(t.`c_wall`) AS cpa,SUM(t.`cpc`) AS cpc,");
@@ -90,6 +92,7 @@ public class Query {
 	    	hql.append("'");
 	    	res = executeHql(hql.toString(), 16);
 	    	
+	    	//获取该小时的广告统计概况
 	    	hql = new StringBuilder();
 	    	hql.append("SELECT 0,SUM(t.`push`) AS push,SUM(t.`view`) AS 'view',SUM(t.`click`) AS click,0,0,");
 	    	hql.append("SUM(t.`d_wall`+t.`d_oth`) AS download, SUM(t.`d_wall`) AS d_wall,SUM(t.`d_oth`) AS d_oth,");
@@ -105,8 +108,8 @@ public class Query {
 	    	res[6] = res[6].intValue() == adres[6].intValue() ? res[6] : -1;
 	    	res[9] = res[9].intValue() == adres[9].intValue() ? res[9] : -1;
 	    	sb.append("<table class='gridtable'>");
-	    	sb.append("<tr><th rowspan='2'>请求数</th><th rowspan='2'>推送数</th><th rowspan='2'>展示数</th><th colspan='2'>点击数</th><th colspan='2'>下载数</th><th colspan='2'>安装数</th><th rowspan='2'>新增用户</th><th rowspan='2'>留存用户</th></tr>");
-	    	sb.append("<tr><th>CPA</th><th>CPC</th><th>墙下载</th><th>非墙下载</th><th>墙安装</th><th>非墙安装</th></tr>");
+	    	sb.append("<tr><th rowspan='2'>总请求<br />(含补推)</th><th rowspan='2'>总推送<br />(含补推)</th><th rowspan='2'>常规展示</th><th colspan='2'>点击数</th><th colspan='2'>下载数</th><th colspan='2'>安装数</th><th rowspan='2'>新增终端</th><th rowspan='2'>留存终端</th></tr>");
+	    	sb.append("<tr><th>CPA</th><th>CPC</th><th>墙</th><th>非墙</th><th>墙</th><th>非墙</th></tr>");
 	    	sb.append("<tr><td>");
 	    	sb.append(res[0]).append("</td><td>");
 	    	sb.append(res[1]).append("</td><td>");
@@ -120,10 +123,41 @@ public class Query {
 	    	sb.append(res[12]).append("</td><td>");
 	    	sb.append(res[13]);
 	    	sb.append("</td></tr></table>");
+	    	sb.append("<span style='color:red;'>注意：值为-1表明该小时两个维度统计的结果不一致</span>。");
             sb.append("<br><br>");
-            sb.append("截止到").append(TimeUtil.getHour(new Date())).append("，总统计结果：\n");
             
-            
+            //获取补推广告情况
+            hql = new StringBuilder();
+ 	    	hql.append("SELECT t.`adid`+0,t.`push`,SUM(t.`d_oth`+t.`d_wall`),SUM(t.`i_oth`+t.`i_wall`),t.`re_view`,t.`re_click`,t.`re_d_wall`,t.`re_d_oth`,SUM(t.`re_d_oth`+t.`re_d_wall`),t.`re_i_wall`,t.`re_i_oth`,SUM(t.`re_i_oth`+t.`re_i_wall`) FROM ad_hour_report_new t ");
+ 	    	hql.append("WHERE t.`hour` = '");
+ 	    	hql.append(hour);
+ 	    	hql.append("' AND t.`re_view` <> '0' GROUP BY t.`adid` ORDER BY t.`adid`");
+ 	    	List<Integer[]> list = executeMultHql(hql.toString(), 12);
+	    	if(list.size() > 0)
+	    	{
+	    		sb.append(TimeUtil.getDayLastHourStr(new Date())).append("-").append(TimeUtil.getHour(new Date())).append("小时补推的广告效果：\n");
+	            sb.append("<table class='gridtable'>");
+		    	sb.append("<tr><th rowspan='2'>补推ADID</th><th rowspan='2'>补推数</th><th rowspan='2'>补推展示</th><th colspan='2'>补推点击</th><th colspan='2'>补推下载数</th><th colspan='2'>补推安装数</th>");
+		    	sb.append("<tr><th>CPA</th><th>CPC</th><th>墙</th><th>非墙</th><th>墙</th><th>非墙</th></tr>");
+		    	for (Integer[] integers : list) {
+		    		sb.append("<tr><td>");
+			    	sb.append(integers[0]).append("</td><td>");
+			    	sb.append(integers[1]).append("</td><td>");
+			    	sb.append(integers[4]).append("</td><td>");
+			    	sb.append(integers[5]).append("</td><td>");
+			    	sb.append("-").append("</td><td>");
+			    	sb.append(integers[6]).append("</td><td>");
+			    	sb.append(integers[7]).append("</td><td>");
+			    	sb.append(integers[9]).append("</td><td>");
+			    	sb.append(integers[10]);
+			    	sb.append("</td></tr>");
+				}
+		    	sb.append("</table>");
+		    	sb.append("<br><br>");
+	    	}
+	    	
+	    	//获取今日累计的推送效果
+            sb.append("今日截止到").append(TimeUtil.getHour(new Date())).append("，累计：\n");
             hql = new StringBuilder();
 	    	hql.append("SELECT SUM(t.`request`) AS request,SUM(t.`push`) AS push,SUM(t.`view`) AS 'view',SUM(t.`cpc`+ t.`c_wall`) AS click,");
 	    	hql.append("SUM(t.`c_wall`) AS cpa,SUM(t.`cpc`) AS cpc,");
@@ -136,8 +170,8 @@ public class Query {
 	    	res = executeHql(hql.toString(), 12);
             sb.append("\n");
             sb.append("<table class='gridtable'>");
-	    	sb.append("<tr><th rowspan='2'>请求数</th><th rowspan='2'>推送数</th><th rowspan='2'>展示数</th><th colspan='2'>点击数</th><th colspan='2'>下载数</th><th colspan='2'>安装数</th>");
-	    	sb.append("<tr><th>CPA</th><th>CPC</th><th>墙下载</th><th>非墙下载</th><th>墙安装</th><th>非墙安装</th></tr>");
+	    	sb.append("<tr><th rowspan='2'>总请求<br />(含补推)</th><th rowspan='2'>总推送<br />(含补推)</th><th rowspan='2'>常规展示</th><th colspan='2'>点击累计</th><th colspan='2'>下载累计</th><th colspan='2'>安装累计</th><th rowspan='2' style='color:red;'>下载总计</th><th rowspan='2' style='color:red;'>安装总计</th>");
+	    	sb.append("<tr><th>CPA</th><th>CPC</th><th>墙</th><th>非墙</th><th>墙</th><th>非墙</th></tr>");
 	    	sb.append("<tr><td>");
 	    	sb.append(res[0]).append("</td><td>");
 	    	sb.append(res[1]).append("</td><td>");
@@ -147,59 +181,129 @@ public class Query {
 	    	sb.append(res[7]).append("</td><td>");
 	    	sb.append(res[8]).append("</td><td>");
 	    	sb.append(res[10]).append("</td><td>");
-	    	sb.append(res[11]);
+	    	sb.append(res[11]).append("</td><td style='color:red;'>");
+	    	sb.append(res[6]).append("</td><td style='color:red;'>");
+	    	sb.append(res[9]);
+	    	sb.append("</td></tr>");
+	    	
+            //获取补推的累计效果
+            hql = new StringBuilder();
+            hql.append("SELECT SUM(t.`push`) AS push FROM  ad_hour_report_new t WHERE t.`hour` LIKE '");
+            hql.append(hour.substring(0,10));
+            hql.append("%' AND t.`re_view` <> 0");
+            res = executeHql(hql.toString(), 1);
+            int push = res[0];
+            
+            hql = new StringBuilder();
+	    	hql.append("SELECT SUM(t.`re_view`) AS 'view',SUM(t.`re_click`) AS click,");
+	    	hql.append("SUM(t.`re_d_wall`),SUM(t.`re_d_oth`),SUM(t.`re_d_oth`+t.`re_d_wall`),");
+	    	hql.append("SUM(t.`re_i_wall`),SUM(t.`re_i_oth`),SUM(t.`re_i_oth`+t.`re_i_wall`)");
+	    	hql.append("FROM ad_hour_report_new t WHERE t.`hour` LIKE '");
+	    	hql.append(hour.substring(0,10));
+	    	hql.append("%'");
+	    	
+	    	res = executeHql(hql.toString(), 8);
+	    	sb.append("<tr><th rowspan='2'></th><th rowspan='2'>补推数</th><th rowspan='2'>补推展示</th><th colspan='2'>补推点击</th><th colspan='2'>补推下载</th><th colspan='2'>补推安装</th><th rowspan='2' style='color:red;'>补推<br />下载总计</th><th rowspan='2' style='color:red;'>补推<br />安装总计</th>");
+	    	sb.append("<tr><th>CPA</th><th>CPC</th><th>墙</th><th>非墙</th><th>墙</th><th>非墙</th></tr>");
+	    	sb.append("<tr><td></td><td>");
+	    	sb.append(push).append("</td><td>");
+	    	sb.append(res[0]).append("</td><td>");
+	    	sb.append(res[1]).append("</td><td>");
+	    	sb.append("-").append("</td><td>");
+	    	sb.append(res[2]).append("</td><td>");
+	    	sb.append(res[3]).append("</td><td>");
+	    	sb.append(res[5]).append("</td><td>");
+	    	sb.append(res[6]).append("</td><td style='color:red;'>");
+	    	sb.append(res[4]).append("</td><td style='color:red;'>");
+	    	sb.append(res[7]);
 	    	sb.append("</td></tr></table>");
             sb.append("<br><br>");
             
+            //获取昨日统计累计
             String day = TimeUtil.getDay(TimeUtil.getLastDay(new Date()));
 	    	hql = new StringBuilder();
-	    	hql.append("SELECT t.`new_a`,t.`push`,t.`view`,t.`click`,SUM(t.`d_wall`+t.`d_wall`),SUM(t.`i_wall`+t.`i_oth`),t.`alive` ");
-	    	hql.append("FROM day_sum t WHERE t.`day` = '");
+	    	hql.append("SELECT SUM(t.`push`),SUM(t.`remain`) AS push FROM  ad_day_report_new t WHERE t.`day` = '");
+	    	hql.append(day);
+            hql.append("' AND t.`re_view` <> 0");
+	    	res = executeHql(hql.toString(), 2);
+	    	
+	    	hql = new StringBuilder();
+	    	hql.append("SELECT t.`push`,t.`view`,t.`click`,SUM(t.`d_oth`+t.`d_wall`),SUM(t.`i_oth`+t.`i_wall`),t.`alive` FROM day_sum t WHERE t.`day` = '");
+	    	hql.append(day).append("' UNION ALL ");
+	    	hql.append("SELECT 0,SUM(t.`re_view`),SUM(t.`re_click`),SUM(t.`re_d_oth`+t.`re_d_wall`),SUM(t.`re_i_oth`+t.`re_i_wall`),0 ");
+	    	hql.append("FROM ad_day_report_new t WHERE t.day = '");
+	    	hql.append(day).append("' UNION ALL ");
+	    	hql.append("SELECT SUM(t.`push`),SUM(t.`view`+t.`re_view`),SUM(t.`click`+t.`re_click`),SUM(t.`d_oth`+t.`d_wall`+t.`re_d_oth`+t.`re_d_wall`),SUM(t.`i_oth`+t.`i_wall`+t.`re_i_oth`+t.`re_i_wall`),0 ");
+	    	hql.append("FROM ad_day_report_new t WHERE t.day = '");
 	    	hql.append(day);
 	    	hql.append("'");
+	    	list = executeMultHql(hql.toString(), 6);
+	    	System.out.println(hql.toString());
 	    	
-	    	res = executeHql(hql.toString(), 7);
-	    	sb.append("昨日统计结果：");
-	    	sb.append("\n");
-            sb.append("<table class='gridtable'>");
-	    	sb.append("<tr><th>推送数</th><th>展示数</th><th>点击数</th><th>下载数</th><th>安装数</th><th>终端数</th>");
-	    	sb.append("<tr><td>");
-	    	sb.append(res[1]).append("</td><td>");
-	    	sb.append(res[2]).append("</td><td>");
-	    	sb.append(res[3]).append("</td><td>");
-	    	sb.append(res[4]).append("</td><td>");
-	    	sb.append(res[5]).append("</td><td>");
-	    	sb.append(res[6]);
-	    	sb.append("</td></tr></table>");
-            sb.append("<br><br>");
-
-            hql = new StringBuilder();
- 	    	hql.append("SELECT t.`adid`+0,t.`push`,SUM(t.`d_oth`+t.`d_wall`),SUM(t.`i_oth`+t.`i_wall`),t.`re_view`,t.`re_click`,SUM(t.`re_d_oth`+t.`re_d_wall`),SUM(t.`re_i_oth`+t.`re_i_wall`),t.`remain` FROM ad_hour_report_new t ");
- 	    	hql.append("WHERE t.`hour` = '");
- 	    	hql.append(hour);
- 	    	hql.append("' AND t.`re_view` <> '0' GROUP BY t.`adid` ORDER BY t.`adid`");
- 	    	List<Integer[]> list = executeMultHql(hql.toString(), 9);
-	    	if(list.size() > 0)
+            if(list.size() > 0)
 	    	{
-	    		sb.append(TimeUtil.getDayLastHourStr(new Date())).append("-").append(TimeUtil.getHour(new Date())).append("小时补推的广告效果：\n");
+            	sb.append("昨日统计累计：\n");
 	            sb.append("<table class='gridtable'>");
-		    	sb.append("<tr><th>广告ID</th><th>推送数</th><th>推送安装</th><th>补推展示</th><th>补推点击</th><th>补推下载</th><th>补推安装</th><th>终端数</th>");
-		    	for (Integer[] integers : list) {
-		    		sb.append("<tr><td>");
-			    	sb.append(integers[0]).append("</td><td>");
+	            sb.append("<tr><th>推送类别</th><th>推送数</th><th>展示数</th><th>点击数</th><th>下载数</th><th>安装数</th><th>终端数</th>");
+	            int sum = list.get(0)[0];
+	            int rsum = list.get(0)[5];
+	            for (int i = 0; i < list.size(); i++) {
+	            	Integer[] integers = list.get(i);
+	            	sb.append("<tr><td class='wr'>");
+			    	sb.append(getType(i)).append("</td><td>");
+			    	sb.append(getPush(i, sum, res[0])).append("</td><td>");
 			    	sb.append(integers[1]).append("</td><td>");
+			    	sb.append(integers[2]).append("</td><td>");
 			    	sb.append(integers[3]).append("</td><td>");
 			    	sb.append(integers[4]).append("</td><td>");
-			    	sb.append(integers[5]).append("</td><td>");
-			    	sb.append(integers[6]).append("</td><td>");
-			    	sb.append(integers[7]).append("</td><td>");
-			    	sb.append(integers[8]);
+			    	sb.append(getRemain(i, rsum, res[1]));
 			    	sb.append("</td></tr>");
 				}
 		    	sb.append("</table>");
 	    	}
-            
 	    	return sb.toString();
+	    }
+	    
+	    private static int getPush(int i,int sum,int re)
+	    {
+	    	switch (i) {
+			case 0:
+				return sum-re;
+			case 1:
+				return re;
+			case 2:
+				return sum;
+			default:
+				return 0;
+			}
+	    }
+	    
+	    private static String getRemain(int i,int sum,int re)
+	    {
+	    	switch (i) {
+			case 0:
+				return String.valueOf(sum);
+			case 1:
+				return "-";
+			case 2:
+				return String.valueOf(sum);
+			default:
+				return "-";
+			}
+	    }
+	    
+	    private static String getType(int i)
+	    {
+	    	switch (i) {
+			case 0:
+				return "推送";
+			case 1:
+				return "补推";
+			case 2:
+				return "合计";
+			default:
+				return "";
+			}
 	    }
 	    
 	    public static void sendMail() {
