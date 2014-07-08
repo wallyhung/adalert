@@ -45,7 +45,8 @@ public class Mail {
         {
         	as = new InternetAddress[adds.length];
             for (int i = 0; i < adds.length ; i++) {
-                as[i] = new InternetAddress(adds[i],"监控者");
+//                as[i] = new InternetAddress(adds[i],"监控者");
+                as[i] = new InternetAddress(adds[i]);
             }
         }
         else{
@@ -86,7 +87,8 @@ public class Mail {
         {
         	as = new InternetAddress[adds.length];
             for (int i = 0; i < adds.length ; i++) {
-                as[i] = new InternetAddress(adds[i],"监控者");
+//                as[i] = new InternetAddress(adds[i],"监控者");
+                as[i] = new InternetAddress(adds[i]);
             }
         }
         else{

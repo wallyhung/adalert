@@ -117,14 +117,13 @@ public class Query {
 	    	sb.append(res[4]).append("</td><td>");
 	    	sb.append(res[5]).append("</td><td>");
 	    	sb.append(res[7]).append("</td><td>");
-	    	sb.append(res[8]).append("</td><td>");
-	    	sb.append(res[10]).append("</td><td>");
+	    	sb.append(res[8]).append("</td><td style='color:red;'>");
+	    	sb.append(res[10]).append("</td><td style='color:red;'>");
 	    	sb.append(res[11]).append("</td><td>");
 	    	sb.append(res[12]).append("</td><td>");
 	    	sb.append(res[13]);
 	    	sb.append("</td></tr></table>");
-	    	sb.append("<span style='color:red;'>注意：值为-1表明该小时两个维度统计的结果不一致</span>。");
-            sb.append("<br><br>");
+	    	sb.append("<span style='color:red;'>注意：值为-1表明该小时两个维度统计的结果不一致</span>。<br />");
             
             //获取补推广告情况
             hql = new StringBuilder();
@@ -135,7 +134,7 @@ public class Query {
  	    	List<Integer[]> list = executeMultHql(hql.toString(), 12);
 	    	if(list.size() > 0)
 	    	{
-	    		sb.append(TimeUtil.getDayLastHourStr(new Date())).append("-").append(TimeUtil.getHour(new Date())).append("小时补推的广告效果：\n");
+	    		sb.append("补推广告效果：\n");
 	            sb.append("<table class='gridtable'>");
 		    	sb.append("<tr><th rowspan='2'>补推ADID</th><th rowspan='2'>补推数</th><th rowspan='2'>补推展示</th><th colspan='2'>补推点击</th><th colspan='2'>补推下载数</th><th colspan='2'>补推安装数</th>");
 		    	sb.append("<tr><th>CPA</th><th>CPC</th><th>墙</th><th>非墙</th><th>墙</th><th>非墙</th></tr>");
@@ -153,7 +152,6 @@ public class Query {
 			    	sb.append("</td></tr>");
 				}
 		    	sb.append("</table>");
-		    	sb.append("<br><br>");
 	    	}
 	    	
 	    	//获取今日累计的推送效果
@@ -217,7 +215,6 @@ public class Query {
 	    	sb.append(res[4]).append("</td><td style='color:red;'>");
 	    	sb.append(res[7]);
 	    	sb.append("</td></tr></table>");
-            sb.append("<br><br>");
             
             //获取昨日统计累计
             String day = TimeUtil.getDay(TimeUtil.getLastDay(new Date()));
@@ -238,7 +235,6 @@ public class Query {
 	    	hql.append(day);
 	    	hql.append("'");
 	    	list = executeMultHql(hql.toString(), 6);
-	    	System.out.println(hql.toString());
 	    	
             if(list.size() > 0)
 	    	{
@@ -254,7 +250,7 @@ public class Query {
 			    	sb.append(getPush(i, sum, res[0])).append("</td><td>");
 			    	sb.append(integers[1]).append("</td><td>");
 			    	sb.append(integers[2]).append("</td><td>");
-			    	sb.append(integers[3]).append("</td><td>");
+			    	sb.append(integers[3]).append("</td><td style='color:red;'>");
 			    	sb.append(integers[4]).append("</td><td>");
 			    	sb.append(getRemain(i, rsum, res[1]));
 			    	sb.append("</td></tr>");
