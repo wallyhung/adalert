@@ -88,6 +88,18 @@ public class Config {
         }
         return null;
     }
+    
+    public String[] getMarketMailAdds() {
+        try {
+            properties.load(Config.class.getResourceAsStream("/application.properties"));
+            String adds = properties.getProperty("mail.market.adds");
+            if(StringUtils.isNullOrEmpty(adds)) return null;
+            else return adds.split(",");
+        } catch (IOException e) {
+            logger.error("加载邮件接受人失败...");
+        }
+        return null;
+    }
 
 
 }

@@ -15,6 +15,7 @@ public class HourJob implements Job{
 	{
 		logger.info("hour report reseult validating ....");
 		Query.sendMail();
+		MarketQuery.sendMail();
 	}
 
 }
